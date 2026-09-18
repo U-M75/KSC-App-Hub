@@ -8,16 +8,15 @@ A Kawaii Slime Company branded internal app launcher. There is intentionally no 
 - App cards with icon, title and summary
 - Title is the only visible clickable link; the raw URL is not displayed
 - Add, edit and remove apps through the UI
-- Supabase-backed app directory
+- Neon PostgreSQL-backed app directory
 - Search
 
 ## Setup
 
-Run `supabase-app-launcher-schema.sql` in a new Supabase project, then set in Vercel:
+Run `neon-app-launcher-schema.sql` in the Neon SQL Editor, then set in Vercel:
 
 ```text
-SUPABASE_URL=
-SUPABASE_SERVICE_KEY=
+DATABASE_URL=
 APP_BASE_URL=https://your-launcher.vercel.app
 ```
 
