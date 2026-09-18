@@ -22,6 +22,22 @@ APP_BASE_URL=https://your-launcher.vercel.app
 
 Deploy the extracted project files to Vercel.
 
+## Pages
+
+Public launcher:
+
+```text
+/
+```
+
+Backend app manager:
+
+```text
+/admin
+```
+
+The public page only shows the app cards. Add, edit and remove controls are available on `/admin`.
+
 ## Important security note
 
-Because this version has no password, anyone who can open the app can add, edit or remove app cards. Add authentication before using it outside the trusted internal team.
+Because this version has no password, anyone who can open `/admin` can add, edit or remove app cards. Add authentication before using it outside the trusted internal team.
