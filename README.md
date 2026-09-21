@@ -18,6 +18,8 @@ Run `neon-app-launcher-schema.sql` in the Neon SQL Editor, then set in Vercel:
 ```text
 DATABASE_URL=
 APP_BASE_URL=https://your-launcher.vercel.app
+APP_HUB_ADMIN_PASSWORD=
+APP_HUB_SESSION_SECRET=
 ```
 
 Deploy the extracted project files to Vercel.
@@ -36,8 +38,6 @@ Backend app manager:
 /admin
 ```
 
-The public page only shows the app cards. Add, edit and remove controls are available on `/admin`.
+The public page only shows the app cards. Add, edit and remove controls are available on `/admin`, which is protected by `APP_HUB_ADMIN_PASSWORD`.
 
-## Important security note
-
-Because this version has no password, anyone who can open `/admin` can add, edit or remove app cards. Add authentication before using it outside the trusted internal team.
+Use a strong password and keep `APP_HUB_SESSION_SECRET` private. The public launcher does not require a password.

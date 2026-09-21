@@ -1,4 +1,5 @@
 import { neon } from '@neondatabase/serverless'
+import { verifyAdminToken } from './_lib/admin-auth.js'
 
 function clean(value) { return String(value ?? '').trim() }
 function db() {
@@ -19,12 +20,13 @@ export default async function handler(req, res) {
     }
 
     const body = req.body || {}
+    if (!verifyAdminToken(req)) return res.status(401).json({ error: 'Admin authentication is required.' })
     if (req.method === 'POST') {
       const title = clean(body.title)
       const summary = clean(body.summary)
       const appUrl = clean(body.app_url)
       const icon = clean(body.icon) || '✨'
-      if (!title || !summary || !appUrl) return res.status(400).json({ error: 'Title, summary and app link are required.' })
+      if (!title || !appUrl) return res.status(400).json({ error: 'Title and app link are required.' })
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         insert into ksc_app_launcher_apps (title, summary, app_url, icon, sort_order)
@@ -41,7 +43,7 @@ export default async function handler(req, res) {
       const summary = clean(body.summary)
       const appUrl = clean(body.app_url)
       const icon = clean(body.icon) || '✨'
-      if (!title || !summary || !appUrl) return res.status(400).json({ error: 'Title, summary and app link are required.' })
+      if (!title || !appUrl) return res.status(400).json({ error: 'Title and app link are required.' })
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         update ksc_app_launcher_apps
