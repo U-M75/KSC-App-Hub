@@ -7,6 +7,7 @@ function db() {
   if (!url) throw new Error('DATABASE_URL is not configured.')
   return neon(url)
 }
+const CATEGORIES = ['Slack', 'Operations', 'Finance & Payroll', 'Inventory & Warehouse', 'Purchasing', 'Sales & Quotation', 'Internal Tools', 'Other']
 function validUrl(value) {
   try { const url = new URL(value); return ['http:', 'https:'].includes(url.protocol) } catch { return false }
 }
@@ -15,7 +16,10 @@ export default async function handler(req, res) {
   try {
     const sql = db()
     if (req.method === 'GET') {
-      const rows = await sql`select id, title, summary, app_url, icon, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
+      const category = clean(req.query?.category)
+      const rows = category && CATEGORIES.includes(category)
+        ? await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
+        : await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
       return res.status(200).json({ apps: rows })
     }
 
@@ -26,11 +30,12 @@ export default async function handler(req, res) {
       const summary = clean(body.summary)
       const appUrl = clean(body.app_url)
       const icon = clean(body.icon) || '✨'
+      const category = CATEGORIES.includes(clean(body.category)) ? clean(body.category) : 'Other'
       if (!title || !appUrl) return res.status(400).json({ error: 'Title and app link are required.' })
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
-        insert into ksc_app_launcher_apps (title, summary, app_url, icon, sort_order)
-        values (${title}, ${summary}, ${appUrl}, ${icon}, ${Number(body.sort_order || 0)})
+        insert into ksc_app_launcher_apps (title, summary, app_url, icon, category, sort_order)
+        values (${title}, ${summary}, ${appUrl}, ${icon}, ${category}, ${Number(body.sort_order || 0)})
         returning *
       `
       return res.status(201).json({ success: true, app: rows[0] })
@@ -43,11 +48,12 @@ export default async function handler(req, res) {
       const summary = clean(body.summary)
       const appUrl = clean(body.app_url)
       const icon = clean(body.icon) || '✨'
+      const category = CATEGORIES.includes(clean(body.category)) ? clean(body.category) : 'Other'
       if (!title || !appUrl) return res.status(400).json({ error: 'Title and app link are required.' })
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         update ksc_app_launcher_apps
-        set title = ${title}, summary = ${summary}, app_url = ${appUrl}, icon = ${icon}, sort_order = ${Number(body.sort_order || 0)}, updated_at = now()
+        set title = ${title}, summary = ${summary}, app_url = ${appUrl}, icon = ${icon}, category = ${category}, sort_order = ${Number(body.sort_order || 0)}, updated_at = now()
         where id = ${id}::uuid
         returning *
       `
