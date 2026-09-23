@@ -5,6 +5,7 @@ create table if not exists public.ksc_app_launcher_apps (
   title text not null unique,
   summary text not null default '',
   app_url text not null,
+  workflow_webhook_url text,
   icon text not null default '✨',
   category text not null default 'Other',
   sort_order integer not null default 0,
@@ -14,6 +15,7 @@ create table if not exists public.ksc_app_launcher_apps (
 );
 
 alter table public.ksc_app_launcher_apps add column if not exists category text not null default 'Other';
+alter table public.ksc_app_launcher_apps add column if not exists workflow_webhook_url text;
 
 create index if not exists ksc_app_launcher_apps_order_idx
   on public.ksc_app_launcher_apps(active, sort_order, title);

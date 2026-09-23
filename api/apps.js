@@ -17,9 +17,18 @@ export default async function handler(req, res) {
     const sql = db()
     if (req.method === 'GET') {
       const category = clean(req.query?.category)
-      const rows = category && CATEGORIES.includes(category)
-        ? await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
-        : await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
+      const adminRequest = req.query?.admin === '1'
+      if (adminRequest && !verifyAdminToken(req)) return res.status(401).json({ error: 'Admin authentication is required.' })
+      let rows
+      if (adminRequest) {
+        rows = category && CATEGORIES.includes(category)
+          ? await sql`select id, title, summary, app_url, workflow_webhook_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
+          : await sql`select id, title, summary, app_url, workflow_webhook_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
+      } else {
+        rows = category && CATEGORIES.includes(category)
+          ? await sql`select id, title, summary, app_url, workflow_webhook_url is not null as has_workflow_webhook, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
+          : await sql`select id, title, summary, app_url, workflow_webhook_url is not null as has_workflow_webhook, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
+      }
       return res.status(200).json({ apps: rows })
     }
 
@@ -29,12 +38,13 @@ export default async function handler(req, res) {
       const title = clean(body.title)
       const summary = clean(body.summary)
       const appUrl = clean(body.app_url)
+      const workflowWebhookUrl = clean(body.workflow_webhook_url) || null
       const icon = clean(body.icon) || '✨'
       const category = CATEGORIES.includes(clean(body.category)) ? clean(body.category) : 'Other'
       if (!title || !appUrl) return res.status(400).json({ error: 'Title and app link are required.' })
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
-        insert into ksc_app_launcher_apps (title, summary, app_url, icon, category, sort_order)
+        insert into ksc_app_launcher_apps (title, summary, app_url, workflow_webhook_url, icon, category, sort_order)
         values (${title}, ${summary}, ${appUrl}, ${icon}, ${category}, ${Number(body.sort_order || 0)})
         returning *
       `
@@ -47,13 +57,14 @@ export default async function handler(req, res) {
       const title = clean(body.title)
       const summary = clean(body.summary)
       const appUrl = clean(body.app_url)
+      const workflowWebhookUrl = clean(body.workflow_webhook_url) || null
       const icon = clean(body.icon) || '✨'
       const category = CATEGORIES.includes(clean(body.category)) ? clean(body.category) : 'Other'
       if (!title || !appUrl) return res.status(400).json({ error: 'Title and app link are required.' })
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         update ksc_app_launcher_apps
-        set title = ${title}, summary = ${summary}, app_url = ${appUrl}, icon = ${icon}, category = ${category}, sort_order = ${Number(body.sort_order || 0)}, updated_at = now()
+        set title = ${title}, summary = ${summary}, app_url = ${appUrl}, workflow_webhook_url = ${workflowWebhookUrl}, icon = ${icon}, category = ${category}, sort_order = ${Number(body.sort_order || 0)}, updated_at = now()
         where id = ${id}::uuid
         returning *
       `
