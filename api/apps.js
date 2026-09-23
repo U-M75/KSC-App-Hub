@@ -26,8 +26,8 @@ export default async function handler(req, res) {
           : await sql`select id, title, summary, app_url, workflow_webhook_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
       } else {
         rows = category && CATEGORIES.includes(category)
-          ? await sql`select id, title, summary, app_url, workflow_webhook_url is not null as has_workflow_webhook, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
-          : await sql`select id, title, summary, app_url, workflow_webhook_url is not null as has_workflow_webhook, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
+          ? await sql`select id, title, summary, workflow_webhook_url is not null as has_workflow_webhook, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
+          : await sql`select id, title, summary, workflow_webhook_url is not null as has_workflow_webhook, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
       }
       return res.status(200).json({ apps: rows })
     }
@@ -45,7 +45,7 @@ export default async function handler(req, res) {
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         insert into ksc_app_launcher_apps (title, summary, app_url, workflow_webhook_url, icon, category, sort_order)
-        values (${title}, ${summary}, ${appUrl}, ${icon}, ${category}, ${Number(body.sort_order || 0)})
+        values (${title}, ${summary}, ${appUrl}, ${workflowWebhookUrl}, ${icon}, ${category}, ${Number(body.sort_order || 0)})
         returning *
       `
       return res.status(201).json({ success: true, app: rows[0] })
