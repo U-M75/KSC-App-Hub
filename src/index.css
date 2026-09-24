@@ -34,3 +34,4 @@ footer{border-top:1px solid #efe0da;padding-top:18px}
 .admin-banner{margin-top:22px;box-shadow:0 8px 22px #8a5d3b0b}
 @media(max-width:900px){.app-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-intro{padding:38px 30px}.intro-bubble{margin-right:0}}
 @media(max-width:560px){.workspace-intro{padding:34px 22px}.workspace-intro h1{font-size:43px}.toolbar>div:first-child{width:100%}.toolbar input{width:100%}.category-tabs{max-width:none}.app-grid{grid-template-columns:1fr}.app-card{min-height:215px}.app-card:hover{transform:none}.card-actions{opacity:1}}
+.app-card.clickable{cursor:pointer}.app-card.clickable:focus{outline:3px solid #7cd5f355;outline-offset:3px}
