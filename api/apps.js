@@ -26,8 +26,8 @@ export default async function handler(req, res) {
           : await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
       } else {
         rows = category && CATEGORIES.includes(category)
-          ? await sql`select id, title, summary, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
-          : await sql`select id, title, summary, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
+          ? await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true and category = ${category} order by sort_order asc, title asc`
+          : await sql`select id, title, summary, app_url, icon, category, sort_order, created_at, updated_at from ksc_app_launcher_apps where active = true order by sort_order asc, title asc`
       }
       return res.status(200).json({ apps: rows })
     }
