@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         insert into ksc_app_launcher_apps (title, summary, app_url, icon, category, sort_order)
-        values (${title}, ${summary}, ${appUrl}, ${workflowWebhookUrl}, ${icon}, ${category}, ${Number(body.sort_order || 0)})
+        values (${title}, ${summary}, ${appUrl}, ${icon}, ${category}, ${Number(body.sort_order || 0)})
         returning *
       `
       return res.status(201).json({ success: true, app: rows[0] })
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
       if (!validUrl(appUrl)) return res.status(400).json({ error: 'App link must be a valid http or https URL.' })
       const rows = await sql`
         update ksc_app_launcher_apps
-        set title = ${title}, summary = ${summary}, app_url = ${appUrl} = ${workflowWebhookUrl}, icon = ${icon}, category = ${category}, sort_order = ${Number(body.sort_order || 0)}, updated_at = now()
+        set title = ${title}, summary = ${summary}, app_url = ${appUrl}, icon = ${icon}, category = ${category}, sort_order = ${Number(body.sort_order || 0)}, updated_at = now()
         where id = ${id}::uuid
         returning *
       `
